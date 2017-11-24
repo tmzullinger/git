@@ -4903,14 +4903,20 @@ const char *diff_aligned_abbrev(const struct object_id *oid, int len)
 	int abblen;
 	const char *abbrev;
 
+	/* Do we want all 40 hex characters? */
 	if (len == GIT_SHA1_HEXSZ)
 		return oid_to_hex(oid);
 
+	/* An abbreviated value is fine, possibly followed by an ellipsis. */
 	abbrev = diff_abbrev_oid(oid, len);
+
+	if (!print_sha1_ellipsis())
+		return abbrev;
+
 	abblen = strlen(abbrev);
 
 	/*
-	 * In well-behaved cases, where the abbbreviated result is the
+	 * In well-behaved cases, where the abbreviated result is the
 	 * same as the requested length, append three dots after the
 	 * abbreviation (hence the whole logic is limited to the case
 	 * where abblen < 37); when the actual abbreviated result is a
@@ -6067,4 +6073,19 @@ void setup_diff_pager(struct diff_options *opt)
 	if (!DIFF_OPT_TST(opt, EXIT_WITH_STATUS) &&
 	    check_pager_config("diff") != 0)
 		setup_pager();
+}
+
+int print_sha1_ellipsis(void)
+{
+	/*
+	 * Determine if the calling environment contains the variable
+	 * GIT_PRINT_SHA1_ELLIPSIS set to "yes".
+	 */
+	static int cached_result = -1; /* unknown */
+
+	if (cached_result < 0) {
+		const char *v = getenv("GIT_PRINT_SHA1_ELLIPSIS");
+		cached_result = (v && !strcasecmp(v, "yes"));
+	}
+	return cached_result;
 }
