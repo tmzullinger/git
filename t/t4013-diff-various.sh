@@ -178,6 +178,7 @@ diff-tree --root --abbrev initial
 diff-tree --root -r initial
 diff-tree --root -r --abbrev initial
 diff-tree --root -r --abbrev=4 initial
+:noellipses diff-tree --root -r --abbrev=4 initial
 diff-tree -p initial
 diff-tree --root -p initial
 diff-tree --patch-with-stat initial
