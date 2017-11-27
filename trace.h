@@ -129,7 +129,7 @@ extern void trace_strbuf_fl(const char *file, int line, struct trace_key *key,
 __attribute__((format (printf, 4, 5)))
 extern void trace_performance_fl(const char *file, int line,
 				 uint64_t nanos, const char *fmt, ...);
-inline int trace_pass_fl(struct trace_key *key)
+static inline int trace_pass_fl(struct trace_key *key)
 {
 	return key->fd || !key->initialized;
 }
