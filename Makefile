@@ -425,6 +425,10 @@ all::
 #
 # to say "export LESS=FRX (and LV=-c) if the environment variable
 # LESS (and LV) is not set, respectively".
+#
+# Define RUNTIME_PREFIX_PERL to configure Git's PERL commands to locate Git
+# support libraries relative to their filesystem path instead of hard-coding
+# it.
 
 GIT-VERSION-FILE: FORCE
 	@$(SHELL_PATH) ./GIT-VERSION-GEN
@@ -485,6 +489,7 @@ pathsep = :
 
 mandir_relative = $(patsubst $(prefix)/%,%,$(mandir))
 infodir_relative = $(patsubst $(prefix)/%,%,$(infodir))
+sharedir_relative = $(patsubst $(prefix)/%,%,$(sharedir))
 htmldir_relative = $(patsubst $(prefix)/%,%,$(htmldir))
 
 export prefix bindir sharedir sysconfdir gitwebdir localedir
@@ -1964,7 +1969,38 @@ perl/PM.stamp: GIT-PERL-DEFINES FORCE
 PERL_HEADER_TEMPLATE = perl/header_fixed_prefix.pl.template
 
 PERL_DEFINES := $(PERL_PATH_SQ) $(PERLLIB_EXTRA_SQ)
-PERL_DEFINES += $(NO_PERL_MAKEMAKER)
+PERL_DEFINES += $(NO_PERL_MAKEMAKER) $(RUNTIME_PREFIX_PERL)
+
+# Support Perl runtime prefix. In this mode, a different header is installed
+# into Perl scripts. This header expects both the scripts and their support
+# library to be installed relative to $(prefix), and resolves the path to
+# the Perl libraries (perllibdir) from the executable's current path
+# (gitexecdir).
+#
+# This configuration requires both $(perllibdir) and $(gitexecdir) to be
+# relative paths, and will error if this is not the case.
+ifdef RUNTIME_PREFIX_PERL
+
+PERL_HEADER_TEMPLATE = perl/header_runtime_prefix.pl.template
+PERL_DEFINES += $(gitexecdir)
+
+# RUNTIME_PREFIX_PERL requires a $(perllibdir) value.
+ifeq ($(perllibdir),)
+perllibdir = $(sharedir_relative)/perl5
+endif
+
+ifneq ($(filter /%,$(firstword $(gitexecdir))),)
+$(error RUNTIME_PREFIX_PERL requires a relative $(gitexecdir))
+endif
+gitexecdir_relative_SQ = $(gitexecdir_SQ)
+
+ifneq ($(filter /%,$(firstword $(perllibdir))),)
+$(error RUNTIME_PREFIX_PERL requires a relative perllibdir)
+endif
+perllibdir_relative_SQ = $(perllibdir_SQ)
+
+endif
+
 PERL_DEFINES += $(perllibdir)
 
 perl/perl.mak: GIT-CFLAGS GIT-PREFIX perl/Makefile perl/Makefile.PL
@@ -1998,6 +2034,8 @@ GIT-PERL-HEADER: $(PERL_HEADER_TEMPLATE) GIT-PERL-DEFINES perl/perl.mak
 	INSTLIBDIR="$$INSTLIBDIR$${INSTLIBDIR_EXTRA:+:$$INSTLIBDIR_EXTRA}" && \
 	sed -e 's=@@PATHSEP@@='$(pathsep)'=g' \
 	    -e 's=@@INSTLIBDIR@@='$$INSTLIBDIR'=g' \
+	    -e 's=@@GITEXECDIR@@='$(gitexecdir_relative_SQ)'=g' \
+	    -e 's=@@PERLLIBDIR@@='$(perllibdir_relative_SQ)'=g' \
 	    $< >$@
 
 .PHONY: gitweb

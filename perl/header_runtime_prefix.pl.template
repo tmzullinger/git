@@ -1,0 +1,24 @@
+# BEGIN RUNTIME_PREFIX_PERL generated code.
+#
+# This finds our Git::* libraries relative to the script's runtime path.
+BEGIN {
+	use lib split /@@PATHSEP@@/,
+	(
+		$ENV{GITPERLLIB}
+		||
+		do {
+			require FindBin;
+			require File::Spec;
+			my $gitexecdir_relative = '@@GITEXECDIR@@';
+			my $perllibdir_relative = '@@PERLLIBDIR@@';
+
+			($FindBin::Bin =~ m=${gitexecdir_relative}$=) ||
+			    die('Unrecognized runtime path.');
+			my $prefix = substr($FindBin::Bin, 0, -length($gitexecdir_relative));
+			my $perllibdir = File::Spec->catdir($prefix, $perllibdir_relative);
+			(-e $perllibdir) || die("Invalid library path: $perllibdir");
+			$perllibdir;
+		}
+	);
+}
+# END RUNTIME_PREFIX_PERL generated code.
