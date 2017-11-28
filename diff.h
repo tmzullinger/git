@@ -438,4 +438,10 @@ extern void print_stat_summary(FILE *fp, int files,
 			       int insertions, int deletions);
 extern void setup_diff_pager(struct diff_options *);
 
+/*
+ * Should we print an ellipsis after an abbreviated SHA-1 value
+ * when doing diff-raw output or indicating a detached HEAD?
+ */
+extern int print_sha1_ellipsis(void);
+
 #endif /* DIFF_H */
