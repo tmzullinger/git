@@ -1,6 +1,22 @@
 #
 # Makefile for perl support modules and routine
 #
+# This Makefile generates "perl.mak", which contains the actual build and
+# installation directions.
+#
+# PERL_PATH must be defined to be the path of the Perl interpreter to use.
+#
+# prefix must be defined as the Git installation prefix.
+#
+# localedir must be defined as the path to the locale data.
+#
+# perllibdir may be optionally defined to override the default Perl module
+# installation directory, which is relative to prefix. If perllibdir is not
+# absolute, it will be treated as relative to prefix.
+#
+# NO_PERL_MAKEMAKER may be defined to use a built-in Makefile generation method
+# instead of Perl MakeMaker.
+
 makfile:=perl.mak
 modules =
 
@@ -10,6 +26,16 @@ localedir_SQ = $(subst ','\'',$(localedir))
 
 ifndef V
 	QUIET = @
+endif
+
+# If a library directory is provided, and it is not an absolute path, resolve
+# it relative to prefix.
+ifneq ($(perllibdir),)
+ifneq ($(filter /%,$(firstword $(perllibdir))),)
+perllib_instdir = $(perllibdir)
+else
+perllib_instdir = $(prefix)/$(perllibdir)
+endif
 endif
 
 all install instlibdir: $(makfile)
@@ -25,7 +51,12 @@ clean:
 $(makfile): PM.stamp
 
 ifdef NO_PERL_MAKEMAKER
-instdir_SQ = $(subst ','\'',$(prefix)/lib)
+
+ifeq ($(perllib_instdir),)
+perllib_instdir = $(prefix)/lib
+endif
+
+instdir_SQ = $(subst ','\'',$(perllib_instdir))
 
 modules += Git
 modules += Git/I18N
@@ -42,7 +73,7 @@ modules += Git/SVN/Prompt
 modules += Git/SVN/Ra
 modules += Git/SVN/Utils
 
-$(makfile): ../GIT-CFLAGS Makefile
+$(makfile): ../GIT-CFLAGS ../GIT-PERL-DEFINES Makefile
 	echo all: private-Error.pm Git.pm Git/I18N.pm > $@
 	set -e; \
 	for i in $(modules); \
@@ -79,12 +110,21 @@ $(makfile): ../GIT-CFLAGS Makefile
 	echo '	cp private-Error.pm "$$(DESTDIR)$(instdir_SQ)/Error.pm"' >> $@
 	echo instlibdir: >> $@
 	echo '	echo $(instdir_SQ)' >> $@
+
 else
-$(makfile): Makefile.PL ../GIT-CFLAGS
-	$(PERL_PATH) $< PREFIX='$(prefix_SQ)' INSTALL_BASE='' --localedir='$(localedir_SQ)'
+
+# This may be empty if perllibdir was empty.
+instdir_SQ = $(subst ','\'',$(perllib_instdir))
+
+$(makfile): Makefile.PL ../GIT-CFLAGS ../GIT-PERL-DEFINES
+	$(PERL_PATH) $< \
+	  PREFIX='$(prefix_SQ)' INSTALL_BASE='' \
+	  LIB='$(instdir_SQ)' \
+	  --localedir='$(localedir_SQ)'
+
 endif
 
 # this is just added comfort for calling make directly in perl dir
 # (even though GIT-CFLAGS aren't used yet. If ever)
-../GIT-CFLAGS:
-	$(MAKE) -C .. GIT-CFLAGS
+../GIT-CFLAGS ../GIT-PERL-DEFINES:
+	$(MAKE) -C .. $(@F)
