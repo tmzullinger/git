@@ -472,6 +472,10 @@ set by Git if the remote helper has the 'option' capability.
 'option no-haves' {'true'|'false'}::
 	Do not send "have" lines.
 
+'option filter <filter-spec>'::
+	An object filter specification for partial clone or fetch
+	as described in rev-list.
+
 SEE ALSO
 --------
 linkgit:git-remote[1]
