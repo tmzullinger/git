@@ -1483,7 +1483,7 @@ test_expect_success 'git --help completion' '
 	test_completion "git --help core" "core-tutorial "
 '
 
-test_expect_failure 'completion.commands removes multiple commands' '
+test_expect_success 'completion.commands removes multiple commands' '
 	echo cherry-pick >expected &&
 	test_config_global completion.commands "-cherry -mergetool" &&
 	git --list-cmds=list-mainporcelain,list-complete,config |
