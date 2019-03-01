@@ -4,4 +4,5 @@ completion.commands::
 	porcelain commands and a few select others are completed. You
 	can add more commands, separated by space, in this
 	variable. Prefixing the command with '-' will remove it from
-	the existing list.
+	the existing list.  The variable must be set in either the
+	system-wide or global config.
