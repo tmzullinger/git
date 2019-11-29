@@ -109,7 +109,7 @@ then
 	BREW_INSTALL_PACKAGES="git-lfs gettext"
 	export GIT_PROVE_OPTS="--timer --jobs 3 --state=failed,slow,save"
 	export GIT_TEST_OPTS="--verbose-log -x --immediate"
-	MAKEFLAGS="$MAKEFLAGS --jobs=2"
+	MAKEFLAGS="$MAKEFLAGS --jobs=2 USE_LIBPCRE=1"
 elif test -n "$SYSTEM_COLLECTIONURI" || test -n "$SYSTEM_TASKDEFINITIONSURI"
 then
 	CI_TYPE=azure-pipelines
