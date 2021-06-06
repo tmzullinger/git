@@ -199,7 +199,7 @@ Issues of note:
 
    All formats require at least asciidoc 8.4.1. Alternatively, you can
    use Asciidoctor (requires Ruby) by passing USE_ASCIIDOCTOR=YesPlease
-   to make. You need at least Asciidoctor version 1.5.
+   to make. You need at least Asciidoctor version 1.5.7.
 
    There are also "make quick-install-doc", "make quick-install-man"
    and "make quick-install-html" which install preformatted man pages
