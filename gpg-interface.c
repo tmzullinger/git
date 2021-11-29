@@ -921,6 +921,7 @@ static int sign_buffer_gpg(struct strbuf *buffer, struct strbuf *signature,
 	int ret;
 	size_t bottom;
 	struct strbuf gpg_status = STRBUF_INIT;
+	struct string_list lines = { .cmp = starts_with };
 
 	strvec_pushl(&gpg.args,
 		     use_format->program,
@@ -939,8 +940,11 @@ static int sign_buffer_gpg(struct strbuf *buffer, struct strbuf *signature,
 			   signature, 1024, &gpg_status, 0);
 	sigchain_pop(SIGPIPE);
 
-	ret |= !strstr(gpg_status.buf, "\n[GNUPG:] SIG_CREATED ");
+	string_list_split_in_place(&lines, gpg_status.buf, '\n', -1);
+	ret |= !unsorted_string_list_has_string(&lines, "[GNUPG:] SIG_CREATED ");
 	strbuf_release(&gpg_status);
+	string_list_clear(&lines, 0);
+
 	if (ret)
 		return error(_("gpg failed to sign the data"));
 
