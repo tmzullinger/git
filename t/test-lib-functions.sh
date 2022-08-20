@@ -1707,9 +1707,12 @@ test_parse_ls_tree_oids () {
 }
 
 # Choose a port number based on the test script's number and store it in
-# the given variable name, unless that variable already contains a number.
+# the given variable name, unless that variable already contains a number
+# or the string 'random' to generate a random port number.  The range for
+# generated port numbers is 1024-65535, by default.  These may be overriden
+# via GIT_TEST_PORT_RANGE_MIN and GIT_TEST_PORT_RANGE_MAX.
 test_set_port () {
-	local var=$1 port
+	local var=$1 port min max
 
 	if test $# -ne 1 || test -z "$var"
 	then
@@ -1730,6 +1733,12 @@ test_set_port () {
 			# root-only port, use a larger one instead.
 			port=$(($port + 10000))
 		fi
+		;;
+	random)
+		# Pick a random port
+		min="${GIT_TEST_PORT_RANGE_MIN:-1024}"
+		max="${GIT_TEST_PORT_RANGE_MAX:-65535}"
+		port=$(test-tool random-port $min $max)
 		;;
 	*[!0-9]*|0*)
 		error >&7 "invalid port number: $port"
