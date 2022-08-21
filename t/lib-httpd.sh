@@ -206,19 +206,26 @@ enable_cgipassauth () {
 }
 
 start_httpd() {
-	prepare_httpd >&3 2>&4
-
 	test_atexit stop_httpd
 
-	"$LIB_HTTPD_PATH" -d "$HTTPD_ROOT_PATH" \
-		-f "$TEST_PATH/apache.conf" $HTTPD_PARA \
-		-c "Listen 127.0.0.1:$LIB_HTTPD_PORT" -k start \
-		>&3 2>&4
-	if test $? -ne 0
-	then
-		cat "$HTTPD_ROOT_PATH"/error.log >&4 2>/dev/null
-		test_skip_or_die GIT_TEST_HTTPD "web server setup failed"
-	fi
+	i=0
+	while test $i -lt ${GIT_TEST_START_HTTPD_TRIES:-3}
+	do
+		i=$(($i + 1))
+		prepare_httpd >&3 2>&4
+		say >&3 "Starting httpd on port $LIB_HTTPD_PORT"
+		"$LIB_HTTPD_PATH" -d "$HTTPD_ROOT_PATH" \
+			-f "$TEST_PATH/apache.conf" $HTTPD_PARA \
+			-c "Listen 127.0.0.1:$LIB_HTTPD_PORT" -k start \
+			>&3 2>&4
+		test $? -eq 0 && return
+		LIB_HTTPD_PORT=$(($LIB_HTTPD_PORT + 1))
+		export LIB_HTTPD_PORT
+		# clean up modules symlink, prepare_httpd will re-create it
+		rm -f "$HTTPD_ROOT_PATH/modules"
+	done
+	cat "$HTTPD_ROOT_PATH"/error.log >&4 2>/dev/null
+	test_skip_or_die GIT_TEST_HTTPD "web server setup failed"
 }
 
 stop_httpd() {
