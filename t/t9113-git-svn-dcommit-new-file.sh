@@ -28,7 +28,6 @@ test_expect_success 'create files in new directory with dcommit' "
 	echo hello > git-new-dir/world &&
 	git update-index --add git-new-dir/world &&
 	git commit -m hello &&
-	start_svnserve &&
 	git svn dcommit
 	"
 
