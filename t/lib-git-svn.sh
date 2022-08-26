@@ -17,6 +17,7 @@ fi
 GIT_DIR=$PWD/.git
 GIT_SVN_DIR=$GIT_DIR/svn/refs/remotes/git-svn
 SVN_TREE=$GIT_SVN_DIR/svn-tree
+SVNSERVE_PIDFILE="$PWD"/daemon.pid
 test_set_port SVNSERVE_PORT
 
 svn >/dev/null 2>&1
@@ -119,10 +120,35 @@ require_svnserve () {
 }
 
 start_svnserve () {
-	svnserve --listen-port $SVNSERVE_PORT \
-		 --root "$rawsvnrepo" \
-		 --listen-once \
-		 --listen-host 127.0.0.1 &
+	test_atexit stop_svnserve
+
+	i=0
+	while test $i -lt ${GIT_TEST_START_SVNSERVE_TRIES:-3}
+	do
+		say >&3 "Starting svnserve on port $SVNSERVE_PORT ..."
+		svnserve --listen-port $SVNSERVE_PORT \
+			 --root "$rawsvnrepo" \
+			 --daemon --pid-file="$SVNSERVE_PIDFILE" \
+			 --listen-host 127.0.0.1
+		ret=$?
+		# increment port and retry if unsuccessful
+		if test $ret -ne 0
+		then
+			SVNSERVE_PORT=$(($SVNSERVE_PORT + 1))
+			export SVNSERVE_PORT
+		else
+			break
+		fi
+	done
+}
+
+stop_svnserve () {
+	say >&3 "Stopping svnserve ..."
+	SVNSERVE_PID="$(cat "$SVNSERVE_PIDFILE")"
+	if test -n "$SVNSERVE_PID"
+	then
+		kill "$SVNSERVE_PID" 2>/dev/null
+	fi
 }
 
 prepare_utf8_locale () {
