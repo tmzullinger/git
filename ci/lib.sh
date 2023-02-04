@@ -240,6 +240,7 @@ ubuntu-*)
 	MAKEFLAGS="$MAKEFLAGS PYTHON_PATH=/usr/bin/$PYTHON_PACKAGE"
 
 	export GIT_TEST_HTTPD=true
+	export LIB_HTTPD_SSL=true
 
 	# The Linux build installs the defined dependency versions below.
 	# The OS X build installs much more recent versions, whichever
