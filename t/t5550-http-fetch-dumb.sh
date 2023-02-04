@@ -384,7 +384,7 @@ test_expect_success 'remote-http complains cleanly about malformed urls' '
 # learned to handle early remote helper failures more cleanly.
 test_expect_success 'remote-http complains cleanly about empty scheme' '
 	test_must_fail ok=sigpipe git ls-remote \
-		http::${HTTPD_URL#http}/dumb/repo.git 2>stderr &&
+		http::${HTTPD_URL#$HTTPD_PROTO}/dumb/repo.git 2>stderr &&
 	test_i18ngrep "url has no scheme" stderr
 '
 
@@ -454,9 +454,9 @@ test_expect_success 'http-alternates triggers not-from-user protocol check' '
 	echo "$HTTPD_URL/dumb/victim.git/objects" \
 		>"$evil/objects/info/http-alternates" &&
 	test_config_global http.followRedirects true &&
-	test_must_fail git -c protocol.http.allow=user \
+	test_must_fail git -c protocol.$HTTPD_PROTO.allow=user \
 		clone $HTTPD_URL/dumb/evil.git evil-user &&
-	git -c protocol.http.allow=always \
+	git -c protocol.$HTTPD_PROTO.allow=always \
 		clone $HTTPD_URL/dumb/evil.git evil-user
 '
 

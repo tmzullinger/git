@@ -15,7 +15,7 @@ fi
 start_httpd
 
 GET() {
-	curl --include "$HTTPD_URL/$SMART/repo.git/$1" >out &&
+	curl --include --insecure "$HTTPD_URL/$SMART/repo.git/$1" >out &&
 	tr '\015' Q <out |
 	sed '
 		s/Q$//
@@ -26,7 +26,7 @@ GET() {
 }
 
 POST() {
-	curl --include --data "$2" \
+	curl --include --insecure --data "$2" \
 	--header "Content-Type: application/x-$1-request" \
 	"$HTTPD_URL/smart/repo.git/$1" >out &&
 	tr '\015' Q <out |

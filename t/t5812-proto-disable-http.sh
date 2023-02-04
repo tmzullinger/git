@@ -14,7 +14,7 @@ test_expect_success 'create git-accessible repo' '
 	git -C "$bare" config http.receivepack true
 '
 
-test_proto "smart http" http "$HTTPD_URL/smart/repo.git"
+test_proto "smart http" $HTTPD_PROTO "$HTTPD_URL/smart/repo.git"
 
 test_expect_success 'http(s) transport respects GIT_ALLOW_PROTOCOL' '
 	test_must_fail env GIT_ALLOW_PROTOCOL=http:https \
@@ -28,9 +28,9 @@ test_expect_success 'curl limits redirects' '
 '
 
 test_expect_success 'http can be limited to from-user' '
-	git -c protocol.http.allow=user \
+	git -c protocol.$HTTPD_PROTO.allow=user \
 		clone "$HTTPD_URL/smart/repo.git" plain.git &&
-	test_must_fail git -c protocol.http.allow=user \
+	test_must_fail git -c protocol.$HTTPD_PROTO.allow=user \
 		clone "$HTTPD_URL/smart-redir-perm/repo.git" redir.git
 '
 

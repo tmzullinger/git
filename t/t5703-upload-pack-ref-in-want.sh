@@ -450,7 +450,7 @@ test_expect_success 'setup repos for change-while-negotiating test' '
 		# Local repo with many commits (so that negotiation will take
 		# more than 1 request/response pair)
 		rm -rf "$LOCAL_PRISTINE" &&
-		git clone "http://127.0.0.1:$LIB_HTTPD_PORT/smart/repo" "$LOCAL_PRISTINE" &&
+		git clone "$HTTPD_URL/smart/repo" "$LOCAL_PRISTINE" &&
 		cd "$LOCAL_PRISTINE" &&
 		git checkout -b side &&
 		test_commit_bulk --id=s 33 &&
@@ -462,7 +462,7 @@ test_expect_success 'setup repos for change-while-negotiating test' '
 		test_commit m3 &&
 		git tag -d m2 m3
 	) &&
-	git -C "$LOCAL_PRISTINE" remote set-url origin "http://127.0.0.1:$LIB_HTTPD_PORT/one_time_perl/repo" &&
+	git -C "$LOCAL_PRISTINE" remote set-url origin "$HTTPD_URL/one_time_perl/repo" &&
 	git -C "$LOCAL_PRISTINE" config protocol.version 2
 '
 

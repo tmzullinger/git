@@ -67,7 +67,7 @@ svn_cmd () {
 		svn
 		return
 	fi
-	svn "$orig_svncmd" --config-dir "$svnconf" "$@"
+	svn --non-interactive --trust-server-cert "$orig_svncmd" --config-dir "$svnconf" "$@"
 }
 
 maybe_start_httpd () {

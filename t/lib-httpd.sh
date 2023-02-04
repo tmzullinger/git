@@ -171,7 +171,7 @@ prepare_httpd() {
 		then
 			HTTPD_PARA="$HTTPD_PARA -DSVN"
 			LIB_HTTPD_SVNPATH="$rawsvnrepo"
-			svnrepo="http://127.0.0.1:$LIB_HTTPD_PORT/"
+			svnrepo="$HTTPD_URL/"
 			svnrepo="$svnrepo$LIB_HTTPD_SVN"
 			export LIB_HTTPD_SVN LIB_HTTPD_SVNPATH
 		fi
@@ -283,11 +283,11 @@ expect_askpass() {
 		none)
 			;;
 		pass)
-			echo "askpass: Password for 'http://$2@$dest': "
+			echo "askpass: Password for '$HTTPD_PROTO://$2@$dest': "
 			;;
 		both)
-			echo "askpass: Username for 'http://$dest': "
-			echo "askpass: Password for 'http://$2@$dest': "
+			echo "askpass: Username for '$HTTPD_PROTO://$dest': "
+			echo "askpass: Password for '$HTTPD_PROTO://$2@$dest': "
 			;;
 		*)
 			false

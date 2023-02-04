@@ -84,7 +84,7 @@ run_git_push_porcelain_output_test() {
 	case $1 in
 	http)
 		PROTOCOL="HTTP protocol"
-		URL_PREFIX="http://.*"
+		URL_PREFIX="$HTTPD_PROTO://.*"
 		;;
 	file)
 		PROTOCOL="builtin protocol"
