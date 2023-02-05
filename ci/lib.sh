@@ -241,6 +241,8 @@ ubuntu-*)
 
 	export GIT_TEST_HTTPD=true
 	export LIB_HTTPD_SSL=true
+	export GIT_TEST_SVNSERVE=true
+	export GIT_TEST_SVN_HTTPD=true
 
 	# The Linux build installs the defined dependency versions below.
 	# The OS X build installs much more recent versions, whichever
