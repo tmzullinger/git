@@ -165,7 +165,7 @@ test_lazy_prereq GPGSSH_VERIFYTIME '
 	# and verify ssh-keygen verifies the key lifetime
 	echo "testpayload" |
 	ssh-keygen -Y sign -n "git" -f "${GPGSSH_KEY_EXPIRED}" >gpgssh_verifytime_prereq.sig &&
-	! (ssh-keygen -Y verify -n "git" -f "${GPGSSH_ALLOWED_SIGNERS}" -I "principal with expired key" -s gpgssh_verifytime_prereq.sig)
+	! (echo "testpayload" | ssh-keygen -Y verify -n "git" -f "${GPGSSH_ALLOWED_SIGNERS}" -I "principal with expired key" -s gpgssh_verifytime_prereq.sig)
 '
 
 sanitize_pgp() {
